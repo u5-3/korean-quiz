@@ -350,5 +350,26 @@ if(quiz.mode==='listen-mc'){
   err.textContent='読み込み成功：語数 '+DATA.length+'、カテゴリ '+cats.length+'、品詞 '+poss.length;
 } catch(e){ var err = document.getElementById('err'); err.textContent='初期化でエラーが発生しました: '+e; console.error(e); }});
 </script>
+
+
+
+
+<button id="unlockAudio" style="position:fixed;right:16px;bottom:16px;z-index:9999">🔊 音声を有効化</button>
+<audio id="unlockProbe" src="audio/ko_001.mp3" preload="auto"></audio>
+<script>
+document.getElementById('unlockAudio').addEventListener('click', async () => {
+  try {
+    const a = document.getElementById('unlockProbe');
+    a.currentTime = 0;
+    await a.play();   // ← ここでユーザー操作による再生を発生させる
+    a.pause();
+    document.getElementById('unlockAudio').remove();
+    alert('音声を有効化しました。クイズの再生ボタンで音が出るはずです。');
+  } catch(e) {
+    alert('再生がブロックされました。もう一度タップしてください。');
+  }
+});
+</script>
+
 </body>
 </html>
