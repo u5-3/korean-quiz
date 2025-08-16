@@ -350,5 +350,50 @@ if(quiz.mode==='listen-mc'){
   err.textContent='読み込み成功：語数 '+DATA.length+'、カテゴリ '+cats.length+'、品詞 '+poss.length;
 } catch(e){ var err = document.getElementById('err'); err.textContent='初期化でエラーが発生しました: '+e; console.error(e); }});
 </script>
+
+
+
+
+<!-- 🔊 強力版：iOS向け “音声を有効化” -->
+<button id="unlockAudio" style="position:fixed;right:16px;bottom:16px;z-index:9999">🔊 音声を有効化</button>
+<audio id="unlockProbe" src="audio/ko_001.mp3" preload="auto"></audio>
+<script>
+(function(){
+  const btn = document.getElementById('unlockAudio');
+  const probe = document.getElementById('unlockProbe');
+  let ctx;
+
+  btn.addEventListener('click', async () => {
+    try {
+      // 1) Web Audio をユーザー操作で起動（iOSはこれが鍵）
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        ctx = ctx || new AC();
+        await ctx.resume();               // ← ここで “音出し許可” を取る
+        // 無音の超短い音を鳴らして “配線” を確立
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        gain.gain.value = 0.0001;        // 実質無音
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.05);
+      }
+
+      // 2) <audio>でも1回だけユーザー操作で再生 → すぐ停止（鍵開け）
+      probe.currentTime = 0;
+      await probe.play();
+      probe.pause();
+
+      // 3) ボタンを外して完了通知
+      btn.remove();
+      alert('音声の再生が許可されました。クイズの再生ボタンで音が出るはずです。');
+    } catch (e) {
+      alert('再生がブロックされました: ' + (e.name || '') + ' ' + (e.message || '') + '\nもう一度タップしてください。');
+    }
+  });
+})();
+</script>
+
+
 </body>
 </html>
