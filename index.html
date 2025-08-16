@@ -48,6 +48,12 @@ button { cursor:pointer; }
 .choice.correct { border-color:#2ecc71; background:#f4fff7; }
 .choice.wrong { border-color:#e74c3c; background:#fff5f5; }
 @media (max-width:640px){ .choices{ grid-template-columns:1fr; } }
+
+/* === v6.8 compact header overrides === */
+#listenHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+#listenWord{flex:1;white-space:nowrap;}
+#playRight{width:auto !important;min-width:110px;padding:8px 12px;}
+button.play{width:auto !important;display:inline-block;}
 </style>
 </head>
 <body>
@@ -144,7 +150,7 @@ button { cursor:pointer; }
   <!-- Quiz UI -->
   <div id="quizSec" class="section hidden">
     <div class="progress"><div class="bar" id="bar"></div></div>
-    \1
+    
       <div id="listenHeader" class="flex hidden" style="margin:8px 0;justify-content:space-between;gap:12px;">
         <div id="listenWord" style="flex:1;border:1px solid #eee;border-radius:10px;padding:10px 12px;font-size:2rem;"></div>
         <button class="play" id="playRight" style="min-width:120px;">▶ 再生</button>
@@ -298,24 +304,21 @@ window.addEventListener('DOMContentLoaded', function () { try {
     if(quiz.idx>=quiz.items.length){ promptEl.innerHTML='終了！ 正解数 <b>'+quiz.correct+'</b> / '+quiz.items.length; return; }
     var it=quiz.items[quiz.idx]; setProgress();
     
+
 if(quiz.mode==='listen-mc'){
-      // Show Hangul in a big box (center/left) and move play button to right
       document.getElementById('listenHeader').classList.remove('hidden');
       document.getElementById('listenWord').textContent = it.ko;
       var pr = document.getElementById('prompt');
       pr.textContent = '音声を聞いて日本語を選んでください';
-      audioRow.classList.add('hidden'); // hide old row
+      audioRow.classList.add('hidden');
       var btnR = document.getElementById('playRight');
       btnR.onclick = function(){ playKO(it); };
 
-      // Build choices (Japanese text)
       var choices=[it.ja];
       var pool=poolNow().filter(function(x){return x.id!==it.id;});
-      // shuffle
       for (var i=pool.length-1;i>0;i--){var j=(Math.random()*(i+1))|0; var t=pool[i]; pool[i]=pool[j]; pool[j]=t;}
       pool = pool.slice(0,3);
       choices=choices.concat(pool.map(function(x){return x.ja;}));
-      // shuffle choices
       for (var i=choices.length-1;i>0;i--){var j=(Math.random()*(i+1))|0; var t=choices[i]; choices[i]=choices[j]; choices[j]=t;}
       mc.classList.remove('hidden');
       choices.forEach(function(ch){
@@ -323,9 +326,9 @@ if(quiz.mode==='listen-mc'){
         b.onclick=function(){ check(ch===it.ja, it); if(ch===it.ja) b.classList.add('correct'); else b.classList.add('wrong'); };
         mc.appendChild(b);
       });
-      // auto play
       btnR.click();
     } else if(quiz.mode==='ja-to-ko-mc'){
+
 
       promptEl.textContent='日本語に合うハングルを選んでください：『'+it.ja+'』'; hintEl.textContent=it.rr;
       var choices=[it.ko]; var pool=poolNow().filter(function(x){return x.ko!==it.ko;}).slice(0,3); choices=choices.concat(pool.map(function(x){return x.ko;}));
